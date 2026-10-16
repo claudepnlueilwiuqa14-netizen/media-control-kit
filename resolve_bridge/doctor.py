@@ -327,11 +327,18 @@ def run(do_install=False):
     rep["photoshop"] = com_app(["Photoshop.Application", "Photoshop.Application.190"], ps_js)
     ae_exe = find_ae_exe()
     pr_exe = find_pr_exe()
+    aerender = None
+    if ae_exe:
+        cand = os.path.join(os.path.dirname(ae_exe), "aerender.exe")
+        aerender = cand if _exists(cand) else None
     rep["aftereffects"] = {
         "com": com_app(["AfterEffects.Application", "AfterEffects.Application.25"]),
         "exe": ae_exe,
-        "cli_mode": ("AfterFX.exe -r <script.jsx>  （真实支持的命令行方式，"
-                     "见 ae/ae_cli.py）" if ae_exe else "没找到 AfterFX.exe"),
+        "aerender": aerender,
+        "cli_mode": ("AfterFX.exe -r <script.jsx> 做编辑类操作；"
+                     "渲染优先用 aerender.exe（官方命令行渲染器，可 -reuse 复用已开的 AE，"
+                     "不要求图形界面常驻）——见 ae/ae_cli.py 的 render_aerender()"
+                     if ae_exe else "没找到 AfterFX.exe"),
     }
     rep["premiere"] = {
         "com": com_app(["Premiere.Application", "Premiere.Application.25"]),
@@ -418,6 +425,8 @@ def pretty(rep):
         A("  %-14s: COM %s；程序=%s" % (label,
           "可用" if d["com"].get("ok") else "不可用（Adobe 未注册 Application ProgID，正常）",
           d.get("exe") or "未找到"))
+        if d.get("aerender"):
+            A("  %-14s  aerender: %s" % ("", d["aerender"]))
         A("  %-14s  可用通道: %s" % ("", d.get("cli_mode")))
     A("")
     A("[下一步该干什么]")
