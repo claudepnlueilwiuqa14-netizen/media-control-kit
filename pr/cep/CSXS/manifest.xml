@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  CEP 面板骨架 — Premiere Pro 唯一被业界验证为「生产级」的自动化通道
+  （参考 hetpatel-11/Adobe_Premiere_Pro_MCP：CEP = production，UXP = experimental）
+
+  安装：
+    1) Win 注册表允许调试扩展：
+       HKCU\Software\Adobe\CSXS.11  PlayerDebugMode = "1"
+       （PR 2025 是 CSXS.11；老版本可能是 CSXS.9 / CSXS.10）
+       命令：reg add HKCU\Software\Adobe\CSXS.11 /v PlayerDebugMode /t REG_SZ /d 1 /f
+    2) 把 cep/ 整个目录复制到：
+       C:\Users\<你>\AppData\Roaming\Adobe\CEP\extensions\com.mediactrl.prbridge\
+    3) 重启 PR，打开 窗口 > 扩展 > Media Control Kit · PR Bridge
+    4) 面板里能直接跑 PR.*，也可以让 pr_cli.py 通过文件桥把命令丢进去
+-->
+<ExtensionManifest Version="8.0" ExtensionBundleId="com.mediactrl.prbridge"
+                   ExtensionBundleName="Media Control Kit · PR Bridge"
+                   ExtensionBundleVersion="1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ExtensionList>
+    <Extension Id="com.mediactrl.prbridge.panel" Version="1.0.0" />
+  </ExtensionList>
+
+  <ExecutionEnvironment>
+    <HostList>
+      <Host Name="PPRO" Version="14.0" />   <!-- Premiere Pro 2020+ -->
+    </HostList>
+    <LocaleList>
+      <Locale Code="All" />
+    </LocaleList>
+    <RequiredRuntimeList>
+      <RequiredRuntime Name="CSXS" Version="9.0" />
+    </RequiredRuntimeList>
+  </ExecutionEnvironment>
+
+  <DispatchInfoList>
+    <Extension Id="com.mediactrl.prbridge.panel">
+      <DispatchInfo>
+        <Resources>
+          <MainPath>./index.html</MainPath>
+          <ScriptPath>./jsx/host.jsx</ScriptPath>
+        </Resources>
+        <Lifecycle>
+          <AutoVisible>true</AutoVisible>
+        </Lifecycle>
+        <UI>
+          <Type>Panel</Type>
+          <Menu>Media Control Kit</Menu>
+          <Geometry>
+            <Size>
+              <Width>380</Width>
+              <Height>520</Height>
+            </Size>
+          </Geometry>
+        </UI>
+      </DispatchInfo>
+    </Extension>
+  </DispatchInfoList>
+</ExtensionManifest>
