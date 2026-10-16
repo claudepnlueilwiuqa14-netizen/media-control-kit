@@ -252,10 +252,12 @@ ps.call("exportPNG", "D:/out.png")
 
 ## 4. After Effects（`ae/`）
 
-### 4.1 通道
+### 4.1 通道（两条，各管一段）
 
 AE **没有** COM Application 接口（注册表里只有 `AfterEffects.Project.25`，
-没有 `AfterEffects.Application`）。真实可用的是命令行：
+没有 `AfterEffects.Application`）。
+
+**① 编辑类操作 → `AfterFX.exe -r`**
 
 ```bash
 "D:\新建文件夹\Adobe After Effects 2025\Support Files\AfterFX.exe" -r script.jsx
@@ -295,9 +297,35 @@ python ae/ae_cli.py selftest
 
 `ae_bridge.jsx` 语法另经真 Photoshop 的 ExtendScript 引擎 `$.evalFile` 验证：`SYNTAX_OK`。
 
-**未执行 / 不稳定**：连续多次调用。首次 `-r` 成功拿到 AE 回执，
-后续调用在本次沙箱环境下等不到结果文件（AE 起来后进程被回收）。
-**下一步**：在真实桌面会话里跑 `python ae/verify.py`（21 步完整验证脚本已写好）。
+**② 渲染 → `aerender.exe`（⭐ 更靠谱，不要求图形界面常驻）**
+
+官方命令行渲染器，本机实测存在且可执行：
+
+```
+$ "D:\新建文件夹\Adobe After Effects 2025\Support Files\aerender.exe" -help
+aerender version 25.1x68
+```
+
+关键参数（从真实 usage 输出里读到的）：
+
+| 参数 | 作用 |
+|---|---|
+| `-reuse` | **复用已经打开的 AE 实例**去渲染；不加则新起一个实例，渲完自动退出 AE |
+| `-project <aep>` | 指定工程 |
+| `-comp <name>` | 指定合成 |
+| `-output <path>` | 输出文件 |
+| `-RStemplate` / `-OMtemplate` | 渲染设置 / 输出模块模板 |
+
+```python
+ae.render_aerender(project="D:/proj.aep", comp="demo",
+                   output="D:/out.mov", reuse=True)
+```
+
+**未执行 / 不稳定**：`-r` 通道连续多次调用。首次 `-r` 成功拿到 AE 回执
+（25.1x68 / 42 函数），后续调用在本次沙箱环境下等不到结果文件（AE 进程被回收）。
+**下一步**：
+1. 渲染优先改用 `render_aerender()`（走 aerender，对 GUI 常驻依赖低得多）
+2. 编辑类验证在真实桌面会话里跑 `python ae/verify.py`（21 步脚本已写好）
 
 ---
 
@@ -315,6 +343,24 @@ PR **既没有 COM，也不支持命令行 `-r`**（那是 AE 才有）。三条
    # 复制 cep/ 到 C:\Users\<你>\AppData\Roaming\Adobe\CEP\extensions\com.mediactrl.prbridge\
    # 重启 PR → 窗口 > 扩展 > Media Control Kit
    ```
+   `python pr/pr_cli.py status` 会直接告诉你开关开了没。本机实测结果：
+
+   ```json
+   "cep_registry": {
+     "CSXS.11": {"exists": true,  "PlayerDebugMode": null, "action": "需要 reg add ... /v PlayerDebugMode /d 1"},
+     "CSXS.12": {"exists": true,  "PlayerDebugMode": null, "action": "需要 reg add ... /v PlayerDebugMode /d 1"},
+     "CSXS.10": {"exists": false},
+     "CSXS.9":  {"exists": false}
+   }
+   ```
+   → **CSXS.11 和 CSXS.12 的键都在，但调试开关还没开**，所以 CEP 面板
+   复制过去也不会显示。先跑上面那条 `reg add` 再重启 PR。
+
+   **顺带印证**：`qmasingarbe/pymiere`（Python 直控 PR 的库，★474，A 级）
+   用的也是同一套机制 —— Python → 生成 ExtendScript → 通过 HTTP 发给一个
+   装在 PR 里的 CEP 扩展（Pymiere Link）。这反过来证明 CEP 就是 PR 上唯一靠谱的路。
+   （pymiere 自己已标注不再维护、只测到 PR 2023，所以这里没直接依赖它，
+   而是自己给了 cep/ 骨架。）
 2. **BridgeTalk 转发** —— 借 Photoshop（它有 COM）把脚本发给 premierepro：
    `python pr_cli.py bridgetalk projectInfo`（PS 和 PR 都要开着）
 3. **Adobe Scripts 目录 + 手动运行** —— 最稳：
@@ -373,7 +419,7 @@ python pr/pr_cli.py status
 |---|---|---|
 | Photoshop 控制 | ✅ **完全可用** | COM 通道，24/24 步真跑通过，产物真实落盘 |
 | Photoshop UXP 骨架 | ⚠️ 未加载验证 | 代码完整，需手动在 PS 里「添加插件」 |
-| After Effects | ⚠️ **首次调用已验证** | `-r` 真跑成功（25.1x68 / 42 函数）；连续调用受沙箱 GUI 回收影响 |
+| After Effects | ⚠️ **通道已验证** | `aerender 25.1x68` 真跑出用法（渲染走它，不依赖 GUI 常驻）；`-r` 首次真跑成功（42 函数），连续调用受沙箱 GUI 回收影响 |
 | Premiere Pro | ⚠️ 未实际执行 | 语法已真引擎验证；PR 未运行。CEP 骨架已给，是生产级方案 |
 | Resolve 免费版桥 | ⚠️ 未实际执行 | 桥脚本已装进 Resolve 脚本菜单目录，Lua 结构自检通过；需真实桌面会话启动监听 |
 | Resolve Studio API | ❌ 本机不可用 | 实测段错误（0xC0000005）。代码保留，换环境可用 |
