@@ -59,6 +59,41 @@ def js(v):
     return json.dumps(v, ensure_ascii=False)
 
 
+def find_aerender():
+    """AE 官方命令行渲染器 aerender.exe。
+
+    ⭐ 这是 AE 最靠谱的自动化通道：它不需要 AE 的图形界面常驻。
+    本机实测存在并可执行：
+        D:\\新建文件夹\\Adobe After Effects 2025\\Support Files\\aerender.exe
+        $ aerender -help  ->  "aerender version 25.1x68"
+    关键参数（实测用法里读到的）：
+        -reuse            复用**已经打开**的 AE 实例去渲染（不加则新起一个，
+                          渲完自动退出 AE）。想让脚本和已开的 AE 配合就用它。
+        -project <aep>   指定工程
+        -comp  <name>    指定合成
+        -output <path>   输出文件
+        -RStemplate      渲染设置模板
+        -OMtemplate      输出模块模板
+    """
+    for c in AE_EXE_CANDIDATES:
+        r = os.path.join(os.path.dirname(c), "aerender.exe")
+        if os.path.isfile(r):
+            return r
+    for drive in ("C:\\", "D:\\", "E:\\"):
+        if not os.path.isdir(drive):
+            continue
+        for base in ("Program Files", "新建文件夹"):
+            p = os.path.join(drive, base)
+            if not os.path.isdir(p):
+                continue
+            for name in os.listdir(p):
+                if "after effects" in name.lower():
+                    r = os.path.join(p, name, "Support Files", "aerender.exe")
+                    if os.path.isfile(r):
+                        return r
+    return None
+
+
 def find_ae_exe():
     for c in AE_EXE_CANDIDATES:
         if os.path.isfile(c):
@@ -161,8 +196,48 @@ class AfterEffects:
             f.write(code)
         return self.run_script_file(jsx, res_path, wait=True)
 
+    # ------------------------------------------- 通道2：aerender 渲染 ----
+    def render_aerender(self, project=None, comp=None, output=None,
+                        rs_template=None, om_template=None, reuse=True,
+                        timeout=1800):
+        """用官方 aerender.exe 渲染——**不需要 AE 图形界面常驻**。
+
+        至少要给 project + comp + output 三个里的前两个。
+        reuse=True 时若 AE 已打开就复用它（不加 -reuse 会新起实例、渲完自动退出）。
+        """
+        aerender = find_aerender()
+        if not aerender:
+            raise AeError("没找到 aerender.exe")
+        cmd = [aerender]
+        if reuse:
+            cmd.append("-reuse")
+        if project:
+            cmd += ["-project", project]
+        if comp:
+            cmd += ["-comp", comp]
+        if output:
+            cmd += ["-output", output]
+        if rs_template:
+            cmd += ["-RStemplate", rs_template]
+        if om_template:
+            cmd += ["-OMtemplate", om_template]
+        try:
+            p = subprocess.run(cmd, capture_output=True, timeout=timeout,
+                               encoding="utf-8", errors="replace")
+        except subprocess.TimeoutExpired:
+            raise AeError("aerender 超时 %ss" % timeout)
+        return {
+            "ok": p.returncode == 0,
+            "returncode": p.returncode,
+            "cmd": " ".join('"%s"' % c if " " in c else c for c in cmd),
+            "stdout": (p.stdout or "")[-800:],
+            "stderr": (p.stderr or "")[-800:],
+        }
+
     def status(self):
-        return {"exe": self.exe, "bridge": BRIDGE if os.path.isfile(BRIDGE) else None,
+        return {"exe": self.exe,
+                "aerender": find_aerender(),
+                "bridge": BRIDGE if os.path.isfile(BRIDGE) else None,
                 "workdir": self.workdir}
 
 
