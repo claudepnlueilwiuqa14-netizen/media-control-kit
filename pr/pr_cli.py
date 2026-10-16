@@ -179,13 +179,41 @@ class Premiere:
         with open(p, encoding="utf-8") as f:
             return json.loads(f.read())
 
+    def cep_debug_state(self):
+        """CEP 面板能不能装，取决于 PlayerDebugMode 有没有开。
+
+        本机实测（PR 2025）：HKCU\\Software\\Adobe 下 **CSXS.11 和 CSXS.12 都存在**，
+        但两个都**没有** PlayerDebugMode 值 —— 也就是还没开调试开关，
+        CEP 面板装了也不会显示。必须先跑：
+            reg add HKCU\\Software\\Adobe\\CSXS.11 /v PlayerDebugMode /t REG_SZ /d 1 /f
+        """
+        try:
+            import winreg
+        except ImportError:
+            return {"note": "非 Windows"}
+        out = {}
+        for v in ("CSXS.11", "CSXS.12", "CSXS.10", "CSXS.9"):
+            try:
+                k = winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Software\\Adobe\\" + v)
+                try:
+                    val, _ = winreg.QueryValueEx(k, "PlayerDebugMode")
+                    out[v] = {"exists": True, "PlayerDebugMode": val}
+                except Exception:                             # noqa: BLE001
+                    out[v] = {"exists": True, "PlayerDebugMode": None,
+                              "action": "需要 reg add ... /v PlayerDebugMode /d 1"}
+            except Exception:                                 # noqa: BLE001
+                out[v] = {"exists": False}
+        return out
+
     def status(self):
         return {
             "pr_exe": find_pr_exe(),
             "pr_running": pr_running(),
             "bridge_jsx": BRIDGE if os.path.isfile(BRIDGE) else None,
             "adobe_scripts_dir": ADOBE_SCRIPTS if os.path.isdir(ADOBE_SCRIPTS) else None,
+            "cep_registry": self.cep_debug_state(),
             "channels": [
+                "CEP 面板（生产级方案，需先开 PlayerDebugMode）—— pr/cep/",
                 "BridgeTalk 转发（借 Photoshop 的 COM，PR+PS 都要开着）",
                 "Adobe Scripts 目录 + PR 里手动运行（最稳）",
             ],
