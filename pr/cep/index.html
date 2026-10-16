@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <title>Media Control Kit · PR Bridge</title>
+  <style>
+    :root { color-scheme: dark; }
+    body { margin: 0; padding: 10px; background: #2b2b2b; color: #e6e6e6;
+           font: 12px/1.5 "Segoe UI", system-ui, sans-serif; }
+    h1 { font-size: 12px; margin: 0 0 8px; font-weight: 600; }
+    .row { display: flex; gap: 6px; margin-bottom: 6px; align-items: center; }
+    label { width: 68px; flex: none; opacity: .8; }
+    input { flex: 1; min-width: 0; background: #1e1e1e; color: #e6e6e6;
+            border: 1px solid #555; border-radius: 3px; padding: 3px 6px; }
+    button { background: #3a7bd5; color: #fff; border: 0; border-radius: 3px;
+             padding: 4px 8px; cursor: pointer; margin: 2px 2px 0 0; }
+    button:hover { background: #4a8be5; }
+    pre { background: #1a1a1a; border: 1px solid #444; border-radius: 3px;
+          padding: 6px; height: 240px; overflow: auto; white-space: pre-wrap;
+          font: 11px/1.4 Consolas, monospace; margin: 8px 0 0; }
+  </style>
+</head>
+<body>
+  <h1>Media Control Kit · PR Bridge (CEP)</h1>
+
+  <div class="row">
+    <label>序列名</label>
+    <input id="seqName" value="zt_seq" />
+  </div>
+  <div class="row">
+    <label>素材</label>
+    <input id="mediaPath" value="D:/clip.mp4" />
+  </div>
+
+  <div>
+    <button id="bInfo">项目信息</button>
+    <button id="bSeqs">序列列表</button>
+    <button id="bNewSeq">建序列</button>
+    <button id="bImport">导入素材</button>
+    <button id="bInsert">插入片段</button>
+    <button id="bClips">片段列表</button>
+    <button id="bFx">效果参数</button>
+    <button id="bExport">导出序列</button>
+  </div>
+
+  <pre id="out">就绪。CEP 通过 evalScript 调 ExtendScript，PR.* 都在 jsx/host.jsx 里。</pre>
+
+  <script src="js/CSInterface.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
