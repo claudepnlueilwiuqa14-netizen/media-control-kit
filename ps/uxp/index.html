@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <title>Media Control Kit · PS Bridge</title>
+  <style>
+    :root { color-scheme: dark; }
+    body {
+      margin: 0; padding: 12px;
+      background: #2b2b2b; color: #e6e6e6;
+      font: 12px/1.5 "Segoe UI", system-ui, sans-serif;
+    }
+    h1 { font-size: 13px; margin: 0 0 10px; font-weight: 600; }
+    .row { display: flex; gap: 6px; margin-bottom: 8px; align-items: center; }
+    label { width: 78px; flex: none; opacity: .85; }
+    input, select {
+      flex: 1; min-width: 0;
+      background: #1e1e1e; color: #e6e6e6;
+      border: 1px solid #555; border-radius: 4px; padding: 4px 6px;
+    }
+    button {
+      background: #3a7bd5; color: #fff; border: 0;
+      border-radius: 4px; padding: 5px 10px; cursor: pointer;
+    }
+    button:hover { background: #4a8be5; }
+    button.ghost { background: #444; }
+    .grid { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+    pre {
+      background: #1a1a1a; border: 1px solid #444; border-radius: 4px;
+      padding: 8px; max-height: 260px; overflow: auto; white-space: pre-wrap;
+      font: 11px/1.45 Consolas, monospace; margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Media Control Kit · PS Bridge (UXP)</h1>
+
+  <div class="row">
+    <label>文字内容</label>
+    <input id="text" value="王承泽最棒" />
+  </div>
+  <div class="row">
+    <label>字号</label>
+    <input id="size" type="number" value="96" />
+  </div>
+  <div class="row">
+    <label>颜色</label>
+    <input id="color" value="#FFD64A" />
+  </div>
+
+  <div class="grid">
+    <button id="btnInfo">文档信息</button>
+    <button id="btnLayers">图层列表</button>
+    <button id="btnText">加文字层</button>
+    <button id="btnBlur">高斯模糊</button>
+    <button id="btnAdj">亮度对比度层</button>
+    <button id="btnChannels">通道列表</button>
+    <button id="btnExport" class="ghost">导出 PNG</button>
+  </div>
+
+  <pre id="out">就绪。点上面的按钮，或看 console。</pre>
+
+  <script src="main.js"></script>
+</body>
+</html>
