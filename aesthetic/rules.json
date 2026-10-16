@@ -1,0 +1,143 @@
+{
+  "schema": "media-control-kit/aesthetic@1",
+  "updated": "2026-10-16",
+  "source": "29 个 2026 年 Awwwards/FWA/Codrops 获奖站实测色值（opencolin/threejs-dashboard lib/sites.ts）+ 本项目踩坑记录",
+  "summary": [
+    "底色够黑，高饱和才是宝石；底不够黑，高饱和就是廉价彩虹",
+    "底色不是纯黑也不是灰黑，是带色相的极深底",
+    "绚烂=死黑占比低+高彩度占比高+特效持续发生"
+  ],
+
+  "color": {
+    "decision_tree": {
+      "step1_background": {
+        "rule": "必须是带色相的极深底（亮度极低且 RGB 不完全相等）",
+        "good": ["#06030d", "#04020a", "#070710", "#0a0a1a", "#070a14"],
+        "bad": ["#000000", "#08080b", "#111111"],
+        "bad_reason": {
+          "#000000": "纯黑，死板，没有色彩呼吸",
+          "#08080b": "灰黑，脏，不带色相"
+        }
+      },
+      "step2_accent_primary": {
+        "rule": "高饱和冷色（青/蓝）",
+        "candidates": ["#5dd0ff", "#42e0ff", "#70ead1", "#1c8cff", "#4aa8ff"]
+      },
+      "step3_accent_secondary": {
+        "rule": "高饱和暖色或对比色（粉/金），与 A 互为冷暖对比",
+        "candidates": ["#ff6ad5", "#ff8ad1", "#ffd24a", "#ffd45e", "#ffce4d"],
+        "note": "金色 #ffd24a 系是 2026 最高频强调色，要高级感优先用它"
+      },
+      "text_neutrals": ["#e6e6e6", "#9aa0a6", "#6b7280"],
+      "constraints": [
+        "强调色不超过 2 个",
+        "中性色不超过 3 档",
+        "两个强调色必须互为冷暖对比，不能都冷",
+        "强调色与正文色对比度 >= 3:1"
+      ]
+    },
+    "reference_palettes": [
+      { "site": "Nova Frontier", "bg": "#06030d", "a": "#5dd0ff", "b": "#ff6ad5" },
+      { "site": "Perfume",       "bg": "#04020a", "a": "#ff3df6", "b": "#42e0ff" },
+      { "site": "Google Bloom",  "bg": "#070710", "a": "#ff8ad1", "b": "#84ffc9" },
+      { "site": "NYT Grid",      "bg": "#0b0b0b", "a": "#ffd24a", "b": "#1c8cff" }
+    ],
+    "past_mistakes": [
+      "为高级感锁死低饱和单色相（错，顶级站全用高饱和对比双色）",
+      "底色用 #08080b 灰黑（错，应带色相的极深底）",
+      "accent 用 #d8be8c（错，应 #ffd24a 系）"
+    ]
+  },
+
+  "type_scale": {
+    "base_px": 16,
+    "ratio": 1.25,
+    "levels": [
+      { "key": "xs",   "px": 12, "line_height": 1.5, "weight": 400, "use": "角标/时间戳/辅助说明" },
+      { "key": "sm",   "px": 14, "line_height": 1.5, "weight": 400, "use": "次要正文/表单标签" },
+      { "key": "base", "px": 16, "line_height": 1.6, "weight": 400, "use": "正文默认" },
+      { "key": "md",   "px": 20, "line_height": 1.5, "weight": 500, "use": "小标题/卡片标题" },
+      { "key": "lg",   "px": 25, "line_height": 1.4, "weight": 600, "use": "区块标题" },
+      { "key": "xl",   "px": 31, "line_height": 1.3, "weight": 600, "use": "页面主标题" },
+      { "key": "2xl",  "px": 39, "line_height": 1.2, "weight": 700, "use": "Hero 标题(桌面)" },
+      { "key": "3xl",  "px": 49, "line_height": 1.1, "weight": 700, "use": "Hero 标题(大屏)" }
+    ],
+    "rules": [
+      "全站只用这 8 档，不许出现第 9 档",
+      "中文正文行高 >= 1.6",
+      "每行 30-45 个汉字（约 60-90 英文字符）",
+      "标题字重 >= 600，正文 400，正文不用 600+",
+      "移动端 Hero 降一档（2xl/3xl -> xl）"
+    ]
+  },
+
+  "spacing": {
+    "base_px": 4,
+    "allowed": [4, 8, 12, 16, 24, 32, 48, 64, 96],
+    "usage": {
+      "icon_gap": [4, 8],
+      "form_padding": [8, 12],
+      "card_padding": [16, 24],
+      "card_gap": [16, 24],
+      "section_gap": [32, 48],
+      "page_partition": [64, 96],
+      "page_margin_desktop": [32, 64],
+      "page_margin_mobile": [16, 20]
+    },
+    "rules": [
+      "相邻层级间距比不小于 1.5",
+      "视觉组内部间距 < 组与组之间间距",
+      "垂直节奏用 8 的倍数，4 只在图标级用"
+    ]
+  },
+
+  "motion": {
+    "table": [
+      { "type": "micro",        "ms": [120, 150], "easing": "ease-out",                          "example": "hover/focus/按下反馈" },
+      { "type": "normal",       "ms": [200, 300], "easing": "cubic-bezier(.4,0,.2,1)",           "example": "展开收起/菜单滑入" },
+      { "type": "page",         "ms": [400, 500], "easing": "cubic-bezier(.16,1,.3,1)",          "example": "页面切换/模态进出" },
+      { "type": "emphasis",     "ms": [600, 800], "easing": "cubic-bezier(.34,1.56,.64,1)",      "example": "成功态/数字滚动" },
+      { "type": "ambient",      "ms": -1,         "easing": "linear",                            "example": "星空/粒子/呼吸光（持续循环）" }
+    ],
+    "rules": [
+      "超过 1s 的动画只能用于氛围背景",
+      "交互反馈绝不能超过 500ms",
+      "入场 ease-out，出场 ease-in",
+      "位移越大时长越长（100px->300ms，1000px->500ms）",
+      "必须支持 prefers-reduced-motion: reduce（关位移，留淡入淡出）",
+      "绚烂的关键是特效持续自动发生，只在点击时放的不算"
+    ]
+  },
+
+  "hard_bans": [
+    { "id": 1,  "area": "color",  "ban": "纯黑 #000000 当底色" },
+    { "id": 2,  "area": "color",  "ban": "灰黑 #08080b / #111111 当底色" },
+    { "id": 3,  "area": "color",  "ban": "低饱和单色相配色" },
+    { "id": 4,  "area": "color",  "ban": "超过 2 个高饱和强调色" },
+    { "id": 5,  "area": "color",  "ban": "白底深字却仍用高饱和强调色" },
+    { "id": 6,  "area": "color",  "ban": "强调色与正文对比度 < 3:1" },
+    { "id": 7,  "area": "type",   "ban": "出现不在字号阶梯里的字号" },
+    { "id": 8,  "area": "type",   "ban": "中文正文行高 < 1.6" },
+    { "id": 9,  "area": "type",   "ban": "正文一行超过 45 个汉字" },
+    { "id": 10, "area": "type",   "ban": "正文用 600+ 字重" },
+    { "id": 11, "area": "space",  "ban": "出现不在允许值列表里的间距" },
+    { "id": 12, "area": "space",  "ban": "相邻层级间距比 < 1.5" },
+    { "id": 13, "area": "motion", "ban": "交互反馈 > 500ms" },
+    { "id": 14, "area": "motion", "ban": "没有 prefers-reduced-motion 兜底" },
+    { "id": 15, "area": "motion", "ban": "同时跑 3 个以上大面积动效" },
+    { "id": 16, "area": "eng",    "ban": "改了 CSS/JS 却不升静态资源版本号（用户拿旧缓存）" },
+    { "id": 17, "area": "eng",    "ban": "只用 readPixels/drawImage 验证视觉（必须用真实页面合成截图）" }
+  ],
+
+  "acceptance_checklist": [
+    "底色是带色相的极深底（非纯黑/灰黑）",
+    "强调色恰好 2 个，高饱和且互为冷暖对比",
+    "所有字号都在 8 档阶梯内",
+    "中文正文行高 >= 1.6，每行 <= 45 汉字",
+    "所有间距都来自允许值列表",
+    "交互反馈 <= 500ms，有 reduced-motion 兜底",
+    "背景特效持续自动发生",
+    "真实浏览器 1440x900 与 390x844 各截一次，无横向溢出",
+    "控制台零 error"
+  ]
+}
