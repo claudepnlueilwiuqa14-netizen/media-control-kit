@@ -1,0 +1,49 @@
+{
+  "manifestVersion": 5,
+  "id": "com.mediactrl.psbridge",
+  "name": "Media Control Kit · PS Bridge",
+  "version": "1.0.0",
+  "main": "index.html",
+  "host": [
+    {
+      "app": "PS",
+      "minVersion": "24.0.0"
+    }
+  ],
+  "entrypoints": [
+    {
+      "type": "command",
+      "id": "runBridgeApi",
+      "label": "Media Control Kit"
+    },
+    {
+      "type": "panel",
+      "id": "panelBridge",
+      "label": "Media Control Kit",
+      "minimumSize": { "width": 320, "height": 360 },
+      "maximumSize": { "width": 800, "height": 900 },
+      "preferredDockedWidth": 360,
+      "preferredDockedHeight": 480,
+      "preferredFloatingWidth": 400,
+      "preferredFloatingHeight": 520,
+      "icons": []
+    }
+  ],
+  "icons": [],
+  "requiredPermissions": [
+    {
+      "name": "localFileSystem",
+      "value": "request"
+    },
+    {
+      "name": "launchProcess",
+      "value": "request",
+      "command": ["node", "powershell"]
+    },
+    {
+      "name": "network",
+      "value": "request",
+      "domains": ["all"]
+    }
+  ]
+}
